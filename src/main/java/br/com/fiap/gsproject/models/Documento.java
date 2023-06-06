@@ -2,6 +2,7 @@ package br.com.fiap.gsproject.models;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,6 +33,6 @@ public class Documento {
 	@Column(name = "nr_cpf", precision = 11)
 	private BigDecimal numero_cpf;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	private Pessoa pessoa;
 }
