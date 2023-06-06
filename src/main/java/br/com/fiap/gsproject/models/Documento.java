@@ -32,7 +32,4 @@ public class Documento {
 
 	@Column(name = "nr_cpf", precision = 11)
 	private BigDecimal numero_cpf;
-
-	@OneToOne(cascade = CascadeType.ALL)
-	private Pessoa pessoa;
 }

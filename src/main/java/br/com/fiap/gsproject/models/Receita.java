@@ -32,8 +32,4 @@ public class Receita {
 	@Column(name = "ds_preparo", length = 500)
 	@NotNull
 	private String descricao_preparo;
-
-	@ManyToOne
-	private CentroDistribuicao centroDistribuicao;
-
 }

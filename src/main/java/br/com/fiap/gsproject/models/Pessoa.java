@@ -2,12 +2,15 @@ package br.com.fiap.gsproject.models;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -37,6 +40,6 @@ public class Pessoa {
 	@NotNull
 	private BigDecimal valor_peso;
 
-	@ManyToOne
-	private CentroDistribuicao centro_distribuicao;
+	@OneToOne(cascade = CascadeType.MERGE)
+	private Documento documento;
 }

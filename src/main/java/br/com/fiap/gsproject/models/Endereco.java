@@ -45,6 +45,4 @@ public class Endereco {
 	@NotNull
 	private String nome_estado;
 
-	@OneToOne
-	private CentroDistribuicao centroDistribuicao;
 }

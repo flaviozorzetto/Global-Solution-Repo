@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.fiap.gsproject.exceptions.BadRequestException;
 import br.com.fiap.gsproject.exceptions.RestNotFoundException;
+import br.com.fiap.gsproject.models.Documento;
 import br.com.fiap.gsproject.models.Pessoa;
 import br.com.fiap.gsproject.repository.PessoaRepository;
 import jakarta.validation.Valid;
@@ -34,18 +36,18 @@ public class PessoaController {
 		return repository.findAll();
 	}
 
-	@PostMapping
-	public ResponseEntity<Pessoa> create(@RequestBody @Valid Pessoa pessoa) {
-		repository.save(pessoa);
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(pessoa);
-	}
-
 	@GetMapping("{id}")
 	public ResponseEntity<Pessoa> show(@PathVariable Long id) {
 		var Pessoa = getPessoa(id);
 
 		return ResponseEntity.ok(Pessoa);
+	}
+
+	@PostMapping
+	public ResponseEntity<Pessoa> create(@RequestBody @Valid Pessoa pessoa) {
+		repository.save(pessoa);
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(pessoa);
 	}
 
 	@DeleteMapping("{id}")
@@ -59,12 +61,42 @@ public class PessoaController {
 
 	@PutMapping("{id}")
 	public ResponseEntity<Pessoa> update(@PathVariable Long id, @Valid @RequestBody Pessoa pessoa) {
-		getPessoa(id);
+		Pessoa pessoaEncontrada = getPessoa(id);
+		pessoaEncontrada.setNome_pessoa(pessoa.getNome_pessoa());
+		pessoaEncontrada.setValor_altura(pessoa.getValor_altura());
+		pessoaEncontrada.setValor_peso(pessoa.getValor_peso());
 
-		pessoa.setId(id);
+		repository.save(pessoaEncontrada);
+
+		return ResponseEntity.ok(pessoaEncontrada);
+	}
+
+	// metodos relacionados ao documento da pessoa
+
+	// adicionar um documento a pessoa
+	@PostMapping("{id}/documento")
+	public ResponseEntity<Pessoa> insertDocumento(@PathVariable Long id, @RequestBody @Valid Documento documento) {
+		Pessoa pessoa = getPessoa(id);
+		if (pessoa.getDocumento() != null) {
+			throw new BadRequestException("Documento ja cadastrado para essa pessoa");
+		}
+
+		pessoa.setDocumento(documento);
+
 		repository.save(pessoa);
 
-		return ResponseEntity.ok(pessoa);
+		return ResponseEntity.status(HttpStatus.CREATED).body(pessoa);
+	}
+
+	// remover o documento da pessoa
+	@DeleteMapping("{id}/documento")
+	public ResponseEntity<Pessoa> destroyDocumento(@PathVariable Long id) {
+		var pessoa = getPessoa(id);
+
+		pessoa.setDocumento(null);
+		repository.save(pessoa);
+
+		return ResponseEntity.noContent().build();
 	}
 
 	private Pessoa getPessoa(Long id) {

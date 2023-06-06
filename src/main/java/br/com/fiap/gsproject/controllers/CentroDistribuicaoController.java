@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.fiap.gsproject.exceptions.RestNotFoundException;
 import br.com.fiap.gsproject.models.CentroDistribuicao;
+import br.com.fiap.gsproject.models.Pessoa;
 import br.com.fiap.gsproject.repository.CentroDistribuicaoRepository;
 import jakarta.validation.Valid;
 
@@ -34,6 +35,20 @@ public class CentroDistribuicaoController {
 		return repository.findAll();
 	}
 
+	@GetMapping("{id}")
+	public ResponseEntity<CentroDistribuicao> show(@PathVariable Long id) {
+		var CentroDistribuicao = getCentroDistribuicao(id);
+
+		return ResponseEntity.ok(CentroDistribuicao);
+	}
+
+	@GetMapping("{id}/pessoas")
+	public ResponseEntity<List<Pessoa>> showPessoasFromCentro(@PathVariable Long id) {
+		var CentroDistribuicao = getCentroDistribuicao(id);
+
+		return ResponseEntity.ok(CentroDistribuicao.getPessoas());
+	}
+
 	@PostMapping
 	public ResponseEntity<CentroDistribuicao> create(@RequestBody @Valid CentroDistribuicao centroDistribuicao) {
 		repository.save(centroDistribuicao);
@@ -41,11 +56,18 @@ public class CentroDistribuicaoController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(centroDistribuicao);
 	}
 
-	@GetMapping("{id}")
-	public ResponseEntity<CentroDistribuicao> show(@PathVariable Long id) {
-		var CentroDistribuicao = getCentroDistribuicao(id);
+	// adicionar uma pessoa ao centro de distribuicao
+	@PostMapping("{id}/pessoas")
+	public ResponseEntity<CentroDistribuicao> insertPessoaIntoCentro(@PathVariable Long id,
+			@RequestBody @Valid Pessoa pessoa) {
+		CentroDistribuicao centroDistribuicao = getCentroDistribuicao(id);
+		var listaPessoas = centroDistribuicao.getPessoas();
+		listaPessoas.add(pessoa);
 
-		return ResponseEntity.ok(CentroDistribuicao);
+		centroDistribuicao.setPessoas(listaPessoas);
+		repository.save(centroDistribuicao);
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(centroDistribuicao);
 	}
 
 	@DeleteMapping("{id}")

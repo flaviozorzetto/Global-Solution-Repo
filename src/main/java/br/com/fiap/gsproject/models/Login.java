@@ -31,7 +31,4 @@ public class Login {
 	@NotNull
 	private String descricao_senha;
 
-	@OneToOne
-	private CentroDistribuicao centroDistribuicao;
-
 }
