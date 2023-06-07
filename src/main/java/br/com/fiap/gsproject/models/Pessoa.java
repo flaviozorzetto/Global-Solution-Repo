@@ -40,6 +40,10 @@ public class Pessoa {
 	@NotNull
 	private BigDecimal valor_peso;
 
+	@Column(name = "vl_idade", precision = 3)
+	@NotNull
+	private BigDecimal valor_idade;
+
 	@OneToOne(cascade = CascadeType.MERGE)
 	private Documento documento;
 }

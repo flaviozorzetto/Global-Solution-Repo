@@ -65,6 +65,7 @@ public class PessoaController {
 		pessoaEncontrada.setNome_pessoa(pessoa.getNome_pessoa());
 		pessoaEncontrada.setValor_altura(pessoa.getValor_altura());
 		pessoaEncontrada.setValor_peso(pessoa.getValor_peso());
+		pessoaEncontrada.setValor_idade(pessoa.getValor_idade());
 
 		repository.save(pessoaEncontrada);
 
