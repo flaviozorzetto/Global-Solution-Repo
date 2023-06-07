@@ -1,11 +1,22 @@
 package br.com.fiap.gsproject.models;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+
+import br.com.fiap.gsproject.controllers.LoginController;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -30,5 +41,16 @@ public class Login {
 	@Column(name = "ds_senha", length = 50)
 	@NotNull
 	private String descricao_senha;
+
+	public EntityModel<Login> toEntityModel() {
+		List<Link> linkList = new ArrayList<Link>();
+		linkList.add(linkTo(methodOn(LoginController.class).show(id)).withSelfRel());
+		linkList.add(linkTo(methodOn(LoginController.class).destroy(id)).withRel("delete"));
+		linkList.add(linkTo(methodOn(LoginController.class).index(Pageable.unpaged())).withRel("all"));
+
+		return EntityModel.of(
+				this,
+				linkList);
+	}
 
 }

@@ -1,11 +1,13 @@
 package br.com.fiap.gsproject.controllers;
 
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 
 import br.com.fiap.gsproject.exceptions.BadRequestException;
 import br.com.fiap.gsproject.exceptions.RestNotFoundException;
@@ -31,23 +35,27 @@ public class PessoaController {
 	@Autowired
 	PessoaRepository repository;
 
+	@Autowired
+	PagedResourcesAssembler<Object> assembler;
+
 	@GetMapping
-	public List<Pessoa> index() {
-		return repository.findAll();
+	public PagedModel<EntityModel<Object>> index(@PageableDefault(size = 5) Pageable pageable) {
+		Page<Pessoa> pessoas = repository.findAll(pageable);
+
+		return assembler.toModel(pessoas.map(Pessoa::toEntityModel));
 	}
 
 	@GetMapping("{id}")
-	public ResponseEntity<Pessoa> show(@PathVariable Long id) {
-		var Pessoa = getPessoa(id);
-
-		return ResponseEntity.ok(Pessoa);
+	public EntityModel<Pessoa> show(@PathVariable Long id) {
+		return getPessoa(id).toEntityModel();
 	}
 
 	@PostMapping
-	public ResponseEntity<Pessoa> create(@RequestBody @Valid Pessoa pessoa) {
+	public ResponseEntity<Object> create(@RequestBody @Valid Pessoa pessoa) {
 		repository.save(pessoa);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(pessoa);
+		return ResponseEntity
+				.created(pessoa.toEntityModel().getRequiredLink("self").toUri()).body(pessoa.toEntityModel());
 	}
 
 	@DeleteMapping("{id}")
@@ -60,23 +68,23 @@ public class PessoaController {
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity<Pessoa> update(@PathVariable Long id, @Valid @RequestBody Pessoa pessoa) {
+	public EntityModel<Pessoa> update(@PathVariable Long id, @Valid @RequestBody Pessoa pessoa) {
 		Pessoa pessoaEncontrada = getPessoa(id);
-		pessoaEncontrada.setNome_pessoa(pessoa.getNome_pessoa());
-		pessoaEncontrada.setValor_altura(pessoa.getValor_altura());
-		pessoaEncontrada.setValor_peso(pessoa.getValor_peso());
-		pessoaEncontrada.setValor_idade(pessoa.getValor_idade());
+		pessoaEncontrada.setNomePessoa(pessoa.getNomePessoa());
+		pessoaEncontrada.setValorAltura(pessoa.getValorAltura());
+		pessoaEncontrada.setValorPeso(pessoa.getValorPeso());
+		pessoaEncontrada.setValorIdade(pessoa.getValorIdade());
 
 		repository.save(pessoaEncontrada);
 
-		return ResponseEntity.ok(pessoaEncontrada);
+		return pessoaEncontrada.toEntityModel();
 	}
 
 	// metodos relacionados ao documento da pessoa
 
 	// adicionar um documento a pessoa
 	@PostMapping("{id}/documento")
-	public ResponseEntity<Pessoa> insertDocumento(@PathVariable Long id, @RequestBody @Valid Documento documento) {
+	public ResponseEntity<Object> insertDocumento(@PathVariable Long id, @RequestBody @Valid Documento documento) {
 		Pessoa pessoa = getPessoa(id);
 		if (pessoa.getDocumento() != null) {
 			throw new BadRequestException("Documento ja cadastrado para essa pessoa");
@@ -86,7 +94,8 @@ public class PessoaController {
 
 		repository.save(pessoa);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(pessoa);
+		return ResponseEntity
+				.created(pessoa.toEntityModel().getRequiredLink("self").toUri()).body(pessoa.toEntityModel());
 	}
 
 	// remover o documento da pessoa

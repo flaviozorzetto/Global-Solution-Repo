@@ -1,11 +1,15 @@
 package br.com.fiap.gsproject.controllers;
 
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,23 +33,27 @@ public class DocumentoController {
 	@Autowired
 	DocumentoRepository repository;
 
+	@Autowired
+	PagedResourcesAssembler<Object> assembler;
+
 	@GetMapping
-	public List<Documento> index() {
-		return repository.findAll();
-	}
+	public PagedModel<EntityModel<Object>> index(@PageableDefault(size = 5) Pageable pageable) {
+		Page<Documento> documentos = repository.findAll(pageable);
 
-	@PostMapping
-	public ResponseEntity<Documento> create(@RequestBody @Valid Documento documento) {
-		repository.save(documento);
-
-		return ResponseEntity.status(HttpStatus.CREATED).body(documento);
+		return assembler.toModel(documentos.map(Documento::toEntityModel));
 	}
 
 	@GetMapping("{id}")
-	public ResponseEntity<Documento> show(@PathVariable Long id) {
-		var Documento = getDocumento(id);
+	public EntityModel<Documento> show(@PathVariable Long id) {
+		return getDocumento(id).toEntityModel();
+	}
 
-		return ResponseEntity.ok(Documento);
+	@PostMapping
+	public ResponseEntity<Object> create(@RequestBody @Valid Documento documento) {
+		repository.save(documento);
+
+		return ResponseEntity
+				.created(documento.toEntityModel().getRequiredLink("self").toUri()).body(documento.toEntityModel());
 	}
 
 	@DeleteMapping("{id}")
@@ -58,13 +66,13 @@ public class DocumentoController {
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity<Documento> update(@PathVariable Long id, @Valid @RequestBody Documento documento) {
+	public EntityModel<Documento> update(@PathVariable Long id, @Valid @RequestBody Documento documento) {
 		getDocumento(id);
 
 		documento.setId(id);
 		repository.save(documento);
 
-		return ResponseEntity.ok(documento);
+		return documento.toEntityModel();
 	}
 
 	private Documento getDocumento(Long id) {

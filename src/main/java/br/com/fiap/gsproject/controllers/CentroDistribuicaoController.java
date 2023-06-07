@@ -5,6 +5,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,23 +40,28 @@ public class CentroDistribuicaoController {
 	@Autowired
 	CentroDistribuicaoRepository repository;
 
+	@Autowired
+	PagedResourcesAssembler<Object> assembler;
+
 	@GetMapping
-	public List<CentroDistribuicao> index() {
-		return repository.findAll();
+	public PagedModel<EntityModel<Object>> index(@PageableDefault(size = 5) Pageable pageable) {
+		Page<CentroDistribuicao> cds = repository.findAll(pageable);
+
+		return assembler.toModel(cds.map(CentroDistribuicao::toEntityModel));
 	}
 
 	@GetMapping("{id}")
-	public ResponseEntity<CentroDistribuicao> show(@PathVariable Long id) {
-		var CentroDistribuicao = getCentroDistribuicao(id);
-
-		return ResponseEntity.ok(CentroDistribuicao);
+	public EntityModel<CentroDistribuicao> show(@PathVariable Long id) {
+		return getCentroDistribuicao(id).toEntityModel();
 	}
 
 	@PostMapping
-	public ResponseEntity<CentroDistribuicao> create(@RequestBody @Valid CentroDistribuicao centroDistribuicao) {
+	public ResponseEntity<Object> create(@RequestBody @Valid CentroDistribuicao centroDistribuicao) {
 		repository.save(centroDistribuicao);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(centroDistribuicao);
+		return ResponseEntity
+				.created(centroDistribuicao.toEntityModel().getRequiredLink("self").toUri())
+				.body(centroDistribuicao.toEntityModel());
 	}
 
 	@DeleteMapping("{id}")
@@ -63,7 +74,7 @@ public class CentroDistribuicaoController {
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity<CentroDistribuicao> update(@PathVariable Long id,
+	public EntityModel<CentroDistribuicao> update(@PathVariable Long id,
 			@Valid @RequestBody CentroDistribuicao centroDistribuicao) {
 		CentroDistribuicao centroDistribuicaoEncontrado = getCentroDistribuicao(id);
 		centroDistribuicaoEncontrado.setNome_centro_distribuicao(centroDistribuicao.getNome_centro_distribuicao());
@@ -71,7 +82,7 @@ public class CentroDistribuicaoController {
 
 		repository.save(centroDistribuicaoEncontrado);
 
-		return ResponseEntity.ok(centroDistribuicaoEncontrado);
+		return centroDistribuicao.toEntityModel();
 	}
 
 	// Métodos relacionados a pessoas no centro de distribuicao

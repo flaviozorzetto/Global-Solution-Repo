@@ -1,13 +1,21 @@
 package br.com.fiap.gsproject.models;
 
-import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+
+import br.com.fiap.gsproject.controllers.ReceitaController;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -32,4 +40,15 @@ public class Receita {
 	@Column(name = "ds_preparo", length = 500)
 	@NotNull
 	private String descricao_preparo;
+
+	public EntityModel<Receita> toEntityModel() {
+		List<Link> linkList = new ArrayList<Link>();
+		linkList.add(linkTo(methodOn(ReceitaController.class).show(id)).withSelfRel());
+		linkList.add(linkTo(methodOn(ReceitaController.class).destroy(id)).withRel("delete"));
+		linkList.add(linkTo(methodOn(ReceitaController.class).index(Pageable.unpaged())).withRel("all"));
+
+		return EntityModel.of(
+				this,
+				linkList);
+	}
 }

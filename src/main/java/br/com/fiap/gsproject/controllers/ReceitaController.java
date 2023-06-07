@@ -1,11 +1,15 @@
 package br.com.fiap.gsproject.controllers;
 
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,23 +33,27 @@ public class ReceitaController {
 	@Autowired
 	ReceitaRepository repository;
 
+	@Autowired
+	PagedResourcesAssembler<Object> assembler;
+
 	@GetMapping
-	public List<Receita> index() {
-		return repository.findAll();
+	public PagedModel<EntityModel<Object>> index(@PageableDefault(size = 5) Pageable pageable) {
+		Page<Receita> receitas = repository.findAll(pageable);
+
+		return assembler.toModel(receitas.map(Receita::toEntityModel));
 	}
 
 	@PostMapping
-	public ResponseEntity<Receita> create(@RequestBody @Valid Receita receita) {
+	public ResponseEntity<Object> create(@RequestBody @Valid Receita receita) {
 		repository.save(receita);
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(receita);
+		return ResponseEntity
+				.created(receita.toEntityModel().getRequiredLink("self").toUri()).body(receita.toEntityModel());
 	}
 
 	@GetMapping("{id}")
-	public ResponseEntity<Receita> show(@PathVariable Long id) {
-		var Receita = getReceita(id);
-
-		return ResponseEntity.ok(Receita);
+	public EntityModel<Receita> show(@PathVariable Long id) {
+		return getReceita(id).toEntityModel();
 	}
 
 	@DeleteMapping("{id}")
@@ -58,13 +66,13 @@ public class ReceitaController {
 	}
 
 	@PutMapping("{id}")
-	public ResponseEntity<Receita> update(@PathVariable Long id, @Valid @RequestBody Receita receita) {
+	public EntityModel<Receita> update(@PathVariable Long id, @Valid @RequestBody Receita receita) {
 		getReceita(id);
 
 		receita.setId(id);
 		repository.save(receita);
 
-		return ResponseEntity.ok(receita);
+		return receita.toEntityModel();
 	}
 
 	private Receita getReceita(Long id) {

@@ -2,6 +2,19 @@ package br.com.fiap.gsproject.models;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.ArrayList;
+
+import org.springframework.data.domain.Pageable;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
+
+import br.com.fiap.gsproject.controllers.CentroDistribuicaoController;
+import br.com.fiap.gsproject.controllers.EnderecoController;
+import br.com.fiap.gsproject.controllers.LoginController;
+import br.com.fiap.gsproject.controllers.PessoaController;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -47,4 +60,27 @@ public class CentroDistribuicao {
 
 	@OneToOne(cascade = CascadeType.MERGE)
 	private Login login;
+
+	public EntityModel<CentroDistribuicao> toEntityModel() {
+		List<Link> linkList = new ArrayList<Link>();
+		linkList.add(linkTo(methodOn(CentroDistribuicaoController.class).show(id)).withSelfRel());
+		linkList.add(linkTo(methodOn(CentroDistribuicaoController.class).destroy(id)).withRel("delete"));
+		linkList.add(linkTo(methodOn(CentroDistribuicaoController.class).index(Pageable.unpaged())).withRel("all"));
+		linkList.add(linkTo(methodOn(CentroDistribuicaoController.class).showPessoasFromCentro(id)).withRel("allPessoasFromCD"));
+		linkList
+				.add(linkTo(methodOn(CentroDistribuicaoController.class).showReceitasFromCentro(id)).withRel("allReceitasFromCD"));
+
+		if (endereco != null) {
+			linkList
+					.add(linkTo(methodOn(EnderecoController.class).show(this.getEndereco().getId())).withRel("enderecoFromCD"));
+		}
+
+		if (login != null) {
+			linkList.add(linkTo(methodOn(LoginController.class).show(this.getLogin().getId())).withRel("loginFromCD"));
+		}
+
+		return EntityModel.of(
+				this,
+				linkList);
+	}
 }
