@@ -11,7 +11,6 @@ import org.springframework.hateoas.Link;
 import br.com.fiap.gsproject.controllers.CentroDistribuicaoController;
 import br.com.fiap.gsproject.controllers.EnderecoController;
 import br.com.fiap.gsproject.controllers.LoginController;
-import br.com.fiap.gsproject.controllers.PessoaController;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -66,9 +65,11 @@ public class CentroDistribuicao {
 		linkList.add(linkTo(methodOn(CentroDistribuicaoController.class).show(id)).withSelfRel());
 		linkList.add(linkTo(methodOn(CentroDistribuicaoController.class).destroy(id)).withRel("delete"));
 		linkList.add(linkTo(methodOn(CentroDistribuicaoController.class).index(Pageable.unpaged())).withRel("all"));
-		linkList.add(linkTo(methodOn(CentroDistribuicaoController.class).showPessoasFromCentro(id)).withRel("allPessoasFromCD"));
+		linkList.add(
+				linkTo(methodOn(CentroDistribuicaoController.class).showPessoasFromCentro(id)).withRel("allPessoasFromCD"));
 		linkList
-				.add(linkTo(methodOn(CentroDistribuicaoController.class).showReceitasFromCentro(id)).withRel("allReceitasFromCD"));
+				.add(linkTo(methodOn(CentroDistribuicaoController.class).showReceitasFromCentro(id))
+						.withRel("allReceitasFromCD"));
 
 		if (endereco != null) {
 			linkList
