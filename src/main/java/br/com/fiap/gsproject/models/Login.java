@@ -1,5 +1,6 @@
 package br.com.fiap.gsproject.models;
 
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -19,7 +20,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @AllArgsConstructor
@@ -35,11 +36,13 @@ public class Login {
 	private Long id;
 
 	@Column(name = "ds_email", length = 50)
-	@NotNull
+	@Length(max = 50)
+	@NotBlank
 	private String descricao_email;
 
 	@Column(name = "ds_senha", length = 50)
-	@NotNull
+	@Length(max = 50)
+	@NotBlank
 	private String descricao_senha;
 
 	public EntityModel<Login> toEntityModel() {

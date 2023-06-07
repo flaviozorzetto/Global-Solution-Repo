@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -23,6 +24,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -39,18 +43,25 @@ public class Pessoa {
 	private Long id;
 
 	@Column(name = "nm_pessoa", length = 100)
-	@NotNull
+	@Length(max = 100)
+	@NotBlank
 	private String nomePessoa;
 
 	@Column(name = "vl_altura", precision = 3)
+	@Max(value = 999, message = "deve ser menor que 1000")
+	@Min(value = 1, message = "deve ser maior que 0")
 	@NotNull
 	private BigDecimal valorAltura;
 
 	@Column(name = "vl_peso", precision = 3)
+	@Max(value = 999, message = "deve ser menor que 1000")
+	@Min(value = 1, message = "deve ser maior que 0")
 	@NotNull
 	private BigDecimal valorPeso;
 
 	@Column(name = "vl_idade", precision = 3)
+	@Max(value = 999, message = "deve ser menor que 1000")
+	@Min(value = 1, message = "deve ser maior que 0")
 	@NotNull
 	private BigDecimal valorIdade;
 

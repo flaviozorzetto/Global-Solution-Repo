@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -25,6 +26,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -41,10 +43,12 @@ public class CentroDistribuicao {
 	private Long id;
 
 	@Column(name = "nm_centro_distribuicao", length = 50)
+	@Length(max = 50)
 	@NotNull
 	private String nome_centro_distribuicao;
 
 	@Column(name = "nr_vagas", precision = 3)
+	@Max(value = 999, message = "deve ser menor que 1000")
 	@NotNull
 	private BigDecimal numero_vagas;
 

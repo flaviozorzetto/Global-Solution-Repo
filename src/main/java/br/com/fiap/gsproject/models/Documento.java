@@ -21,6 +21,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -37,10 +38,12 @@ public class Documento {
 	private Long id;
 
 	@Column(name = "nr_rg", precision = 9)
+	@Max(value = 999999999, message = "rg invalido")
 	@NotNull
 	private BigDecimal numero_rg;
 
 	@Column(name = "nr_cpf", precision = 11)
+	@Max(value = 99999999999l, message = "cpf invalido")
 	private BigDecimal numero_cpf;
 
 	public EntityModel<Documento> toEntityModel() {

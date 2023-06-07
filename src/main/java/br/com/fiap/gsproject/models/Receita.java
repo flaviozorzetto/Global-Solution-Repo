@@ -3,6 +3,7 @@ package br.com.fiap.gsproject.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.validator.constraints.Length;
 import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -18,7 +19,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @AllArgsConstructor
@@ -34,11 +35,13 @@ public class Receita {
 	private Long id;
 
 	@Column(name = "nm_receita", length = 50)
-	@NotNull
+	@Length(max = 50)
+	@NotBlank
 	private String nome_receita;
 
 	@Column(name = "ds_preparo", length = 500)
-	@NotNull
+	@Length(max = 500)
+	@NotBlank
 	private String descricao_preparo;
 
 	public EntityModel<Receita> toEntityModel() {
