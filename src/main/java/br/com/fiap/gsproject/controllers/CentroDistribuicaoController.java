@@ -58,6 +58,7 @@ public class CentroDistribuicaoController {
 	public ResponseEntity<Object> create(@RequestBody @Valid CentroDistribuicao centroDistribuicao) {
 		repository.save(centroDistribuicao);
 
+		log.info("retornando as informações");
 		return ResponseEntity
 				.created(centroDistribuicao.toEntityModel().getRequiredLink("self").toUri())
 				.body(centroDistribuicao.toEntityModel());

@@ -1,7 +1,6 @@
 package br.com.fiap.gsproject.models;
 
 import java.math.BigDecimal;
-import java.util.List;
 import java.util.ArrayList;
 
 import org.hibernate.validator.constraints.Length;
@@ -30,13 +29,24 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
 @Entity
 @Table(name = "T_SD_CENTRO_DISTRIBUICAO")
 @SequenceGenerator(name = "distribuicao", sequenceName = "SQ_TB_SD_CENTRO_DISTRIBUICAO", allocationSize = 1)
 public class CentroDistribuicao {
+
+	public CentroDistribuicao(Long id, @Length(max = 50) @NotNull String nome_centro_distribuicao,
+			@Max(value = 999, message = "deve ser menor que 1000") @NotNull BigDecimal numero_vagas,
+			ArrayList<Pessoa> pessoas, Endereco endereco, ArrayList<Receita> receitas, Login login) {
+		this.id = id;
+		this.nome_centro_distribuicao = nome_centro_distribuicao;
+		this.numero_vagas = numero_vagas;
+		this.pessoas = pessoas;
+		this.endereco = endereco;
+		this.receitas = receitas;
+		this.login = login;
+	}
+
 	@Id
 	@Column(name = "id_distribuicao")
 	@GeneratedValue(generator = "distribuicao", strategy = GenerationType.SEQUENCE)
@@ -53,19 +63,19 @@ public class CentroDistribuicao {
 	private BigDecimal numero_vagas;
 
 	@OneToMany(cascade = CascadeType.MERGE)
-	private List<Pessoa> pessoas;
+	private ArrayList<Pessoa> pessoas;
 
 	@OneToOne(cascade = CascadeType.MERGE)
 	private Endereco endereco;
 
 	@OneToMany(cascade = CascadeType.MERGE)
-	private List<Receita> receitas;
+	private ArrayList<Receita> receitas;
 
 	@OneToOne(cascade = CascadeType.MERGE)
 	private Login login;
 
 	public EntityModel<CentroDistribuicao> toEntityModel() {
-		List<Link> linkList = new ArrayList<Link>();
+		ArrayList<Link> linkList = new ArrayList<Link>();
 		linkList.add(linkTo(methodOn(CentroDistribuicaoController.class).show(id)).withSelfRel());
 		linkList.add(linkTo(methodOn(CentroDistribuicaoController.class).destroy(id)).withRel("delete"));
 		linkList.add(linkTo(methodOn(CentroDistribuicaoController.class).index(Pageable.unpaged())).withRel("all"));
