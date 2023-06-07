@@ -20,6 +20,7 @@ import br.com.fiap.gsproject.exceptions.BadRequestException;
 import br.com.fiap.gsproject.exceptions.RestNotFoundException;
 import br.com.fiap.gsproject.models.CentroDistribuicao;
 import br.com.fiap.gsproject.models.Endereco;
+import br.com.fiap.gsproject.models.Login;
 import br.com.fiap.gsproject.models.Pessoa;
 import br.com.fiap.gsproject.models.Receita;
 import br.com.fiap.gsproject.repository.CentroDistribuicaoRepository;
@@ -64,12 +65,13 @@ public class CentroDistribuicaoController {
 	@PutMapping("{id}")
 	public ResponseEntity<CentroDistribuicao> update(@PathVariable Long id,
 			@Valid @RequestBody CentroDistribuicao centroDistribuicao) {
-		getCentroDistribuicao(id);
+		CentroDistribuicao centroDistribuicaoEncontrado = getCentroDistribuicao(id);
+		centroDistribuicaoEncontrado.setNome_centro_distribuicao(centroDistribuicao.getNome_centro_distribuicao());
+		centroDistribuicaoEncontrado.setNumero_vagas(centroDistribuicao.getNumero_vagas());
 
-		centroDistribuicao.setId(id);
-		repository.save(centroDistribuicao);
+		repository.save(centroDistribuicaoEncontrado);
 
-		return ResponseEntity.ok(centroDistribuicao);
+		return ResponseEntity.ok(centroDistribuicaoEncontrado);
 	}
 
 	// Métodos relacionados a pessoas no centro de distribuicao
@@ -171,6 +173,33 @@ public class CentroDistribuicaoController {
 		repository.save(centroDistribuicao);
 
 		return ResponseEntity.noContent().build();
+	}
+
+	// Métodos relacionados a login no centro de distribuicao
+
+	// retorna login de um centro de distribuicao
+	@GetMapping("{id}/login")
+	public ResponseEntity<Login> showLoginFromCentro(@PathVariable Long id) {
+		var CentroDistribuicao = getCentroDistribuicao(id);
+
+		return ResponseEntity.ok(CentroDistribuicao.getLogin());
+	}
+
+	// adicionar um login ao centro de distribuicao
+	@PostMapping("{id}/login")
+	public ResponseEntity<CentroDistribuicao> insertLoginIntoCentro(@PathVariable Long id,
+			@RequestBody @Valid Login login) {
+		CentroDistribuicao centroDistribuicao = getCentroDistribuicao(id);
+
+		if (centroDistribuicao.getLogin() != null) {
+			throw new BadRequestException("Login ja cadastrado para esse centro de distribuição");
+		}
+
+		centroDistribuicao.setLogin(login);
+
+		repository.save(centroDistribuicao);
+
+		return ResponseEntity.status(HttpStatus.CREATED).body(centroDistribuicao);
 	}
 
 	private CentroDistribuicao getCentroDistribuicao(Long id) {
